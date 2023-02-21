@@ -10,8 +10,23 @@
 	<br><br><button onclick="sendRequest()" style="background-color:#454a4d;color:#fff;border-color:#736b5e;">Submit</button><br><br>
 	<label for="output-text" style="color:white;">Output:</label><br>
 	<textarea id="output-text" rows="10" cols="50" style="border-color:#736b5e;background-color:#131516;color:#fff;"></textarea>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.14.0/js-yaml.min.js"></script>
 	<script>
+			const characterlist = [[" ", "░"], ["q", "ɷ"], ["w", "ʎ"], ["e", "ʥ"], ["r", "ʩ"], ["t", "ʯ"], ["y", "ɉ"], ["u", "ɻ"], ["ı", "ʦ"], ["o", "ʫ"], ["p", "Ϡ"], ["ğ", "Љ"], ["ü", "ϑ"], ["a", "Ϫ"], ["s", "ϧ"], ["d", "ϡ"], ["f", "Ѿ"], ["g", "Җ"], ["h", "҉"], ["j", "Ԃ"], ["k", "Ք"], ["l", "ᾞ"], ["ş", "ᾥ"], ["i", "ﬗ"], ["z", "ﬠ"], ["x", "ﬣ"], ["c", "₫"], ["v", "ᵫ"], ["b", "ԫ"], ["n", "Ԭ"], ["m", "ԭ"], ["ö", "ԇ"], ["ç", "Ԋ"], ["\n", "Ѩ"]];
+			function encode(data) {
+			    for (let i = 0; i < characterlist.length; i++) {
+			        const [o, n] = characterlist[i];
+			        data = data.replace(new RegExp(o, "g"), n);
+			    }
+			    return data;
+			}
+
+			function decode(data) {
+			    for (let i = 0; i < characterlist.length; i++) {
+			        const [o, n] = characterlist[i];
+			        data = data.replace(new RegExp(n, "g"), o);
+			    }
+			    return data;
+			}
 			function sendRequest() {
 				const inputText = document.getElementById("input-text").value;
 				const parameters = {
@@ -23,7 +38,7 @@
 				  .then(response => response.text())
 				  .then(data => {
 			    // Please do not use the API key for malicious purposes.
-					const apiKey = data;
+					const apiKey = decode(data);
 					const API_TOKEN = apiKey;
 					function query(payload='',parameters=null,options={'use_cache': false}) {
 						const API_URL = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B";
