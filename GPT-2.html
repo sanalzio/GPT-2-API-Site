@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html style="background-color:#074b42;forecolor:#fff;">
+<head>
+	<title>GPT-2</title>
+</head>
+<body style="background-color:#074b42;forecolor:#fff;">
+	<h1 style="color:white;font-family:verdana">GPT-2</h1>
+	<label for="input-text" style="color:white;">Enter Input:</label><br>
+	<textarea id="input-text" rows="10" cols="50" style="border-color:#736b5e;background-color:#131516;color:#fff;"></textarea>
+	<br><br><button onclick="sendRequest()" style="background-color:#454a4d;color:#fff;border-color:#736b5e;">Submit</button><br><br>
+	<label for="output-text" style="color:white;">Output:</label><br>
+	<textarea id="output-text" rows="10" cols="50" style="border-color:#736b5e;background-color:#131516;color:#fff;"></textarea>
+	<script>
+			const characterlist = [[" ", "░"], ["q", "ɷ"], ["w", "ʎ"], ["e", "ʥ"], ["r", "ʩ"], ["t", "ʯ"], ["y", "ɉ"], ["u", "ɻ"], ["ı", "ʦ"], ["o", "ʫ"], ["p", "Ϡ"], ["ğ", "Љ"], ["ü", "ϑ"], ["a", "Ϫ"], ["s", "ϧ"], ["d", "ϡ"], ["f", "Ѿ"], ["g", "Җ"], ["h", "҉"], ["j", "Ԃ"], ["k", "Ք"], ["l", "ᾞ"], ["ş", "ᾥ"], ["i", "ﬗ"], ["z", "ﬠ"], ["x", "ﬣ"], ["c", "₫"], ["v", "ᵫ"], ["b", "ԫ"], ["n", "Ԭ"], ["m", "ԭ"], ["ö", "ԇ"], ["ç", "Ԋ"], ["\n", "Ѩ"]];
+			function encode(data) {
+			    for (let i = 0; i < characterlist.length; i++) {
+			        const [o, n] = characterlist[i];
+			        data = data.replace(new RegExp(o, "g"), n);
+			    }
+			    return data;
+			}
+
+			function decode(data) {
+			    for (let i = 0; i < characterlist.length; i++) {
+			        const [o, n] = characterlist[i];
+			        data = data.replace(new RegExp(n, "g"), o);
+			    }
+			    return data;
+			}
+			function sendRequest() {
+				const inputText = document.getElementById("input-text").value;
+				const parameters = {
+					'max_new_tokens': 100,
+					'temperature': 0.5,
+					'end_sequence': "###"
+				}
+				fetch('https://raw.githubusercontent.com/sanalzio/GPT-2-API-Site/main/.env')
+				  .then(response => response.text())
+				  .then(data => {
+			    // Please do not use the API key for malicious purposes.
+					const apiKey = decode(data);
+					const API_TOKEN = apiKey;
+					function query(payload='',parameters=null,options={'use_cache': false}) {
+						const API_URL = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B";
+						const headers = {"Authorization": `Bearer ${API_TOKEN}`};
+						const body = {"inputs":payload,'parameters':parameters,'options':options};
+						return fetch(API_URL, {
+							method: "POST",
+							headers: headers,
+							body: JSON.stringify(body)
+						})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('Error: ' + response.statusText);
+							}
+							return response.json();
+						})
+						.then(data => data[0]['generated_text'])
+						.catch(error => {
+							return "Error: " + error.message;
+						})
+					}
+						query(inputText, parameters)
+						.then(data => {
+							const outputText = data.replace("###", "");
+							document.getElementById("output-text").value = outputText;
+						})
+						.catch(error => {
+							document.getElementById("output-text").value = error;
+						})
+					})
+			  };
+
+
+	</script>
+</body>
+</html>
